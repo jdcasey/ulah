@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.commonjava.ulah</groupId>
+    <artifactId>ulah-parent</artifactId>
+    <version>0.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>ulah-rest</artifactId>
+  <name>uLah :: REST Bindings</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.commonjava.ulah</groupId>
+      <artifactId>ulah-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.vertx</groupId>
+      <artifactId>vabr-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.vertx</groupId>
+      <artifactId>vabr-processor</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+  </dependencies>
+  
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <source>${javaVersion}</source>
+            <target>${javaVersion}</target>
+            <annotationProcessors>
+              <annotationProcessor>org.commonjava.vertx.vabr.anno.proc.RoutingAnnotationProcessor</annotationProcessor>
+            </annotationProcessors>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+</project>
