@@ -16,29 +16,34 @@ import javax.persistence.TemporalType;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table( name="TRANSACTIONS")
+@Table( name="TRANSACTION")
 @NamedQueries({
-	@NamedQuery( name=Transaction.SUMMARIZE_AMOUNT_BY_TO_ACCOUNT, query="SELECT SUM(t.AMOUNT) from TRANSACTION t WHERE t.TO_ACCOUNT_ID = :accountId"),
-	@NamedQuery( name=Transaction.SUMMARIZE_AMOUNT_BY_FROM_ACCOUNT, query="SELECT SUM(t.AMOUNT) from TRANSACTION t WHERE t.FROM_ACCOUNT_ID = :accountId"),
+	@NamedQuery( name=Transaction.SUMMARIZE_AMOUNT_BY_TO_ACCOUNT, query="SELECT SUM(t.amount) from Transaction t WHERE t.toAccountId = :accountId"),
+	@NamedQuery( name=Transaction.SUMMARIZE_AMOUNT_BY_FROM_ACCOUNT, query="SELECT SUM(t.amount) from Transaction t WHERE t.fromAccountId = :accountId"),
 })
 public class Transaction {
 	
 	public static final String SUMMARIZE_AMOUNT_BY_TO_ACCOUNT = "Transaction.summarizeAmountByToAccount";
 	public static final String SUMMARIZE_AMOUNT_BY_FROM_ACCOUNT = "Transaction.summarizeAmountByFromAccount";
+	public static final String ACCOUNT_ID_PARAM = "accountId";
 	
+	@Id
 	@Column( name="TRANSACTION_ID" )
+	@GeneratedValue( generator="txn_increment")
+	@GenericGenerator(name="txn_increment", strategy="increment")
 	private Long id;
 	
 	@Column( name="FROM_ACCOUNT_ID" )
-	private Account from;
+	private Integer fromAccountId;
 	
 	@Column( name="TO_ACCOUNT_ID" )
-	private Account to;
+	private Integer toAccountId;
 	
 	@Column( name="AMOUNT" )
 	private BigDecimal amount;
 	
 	@Column( name="DATE" )
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date date;
 	
 	@Column( name="RECONCILED" )
@@ -58,8 +63,17 @@ public class Transaction {
 	
 	public Transaction( Account from, Account to, BigDecimal amount, String memo )
 	{
-		this.from = from;
-		this.to = to;
+		this.fromAccountId = from.getId();
+		this.toAccountId = to.getId();
+		this.amount = amount;
+		this.memo = memo;
+		this.date = new Date();
+	}
+
+	public Transaction( Integer fromAccount, Integer toAccount, BigDecimal amount, String memo )
+	{
+		this.fromAccountId = fromAccount;
+		this.toAccountId = toAccount;
 		this.amount = amount;
 		this.memo = memo;
 		this.date = new Date();
@@ -73,8 +87,6 @@ public class Transaction {
 		this.reconciled = reconciled;
 	}
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "TRANSACTION_DATE")
 	public Date getDate() {
 		return date;
 	}
@@ -83,9 +95,6 @@ public class Transaction {
 		this.date = date;
 	}
 
-	@Id
-	@GeneratedValue( generator="increment")
-	@GenericGenerator(name="increment", strategy="increment")
 	public Long getId() {
 		return id;
 	}
@@ -94,20 +103,20 @@ public class Transaction {
 		this.id = id;
 	}
 
-	public Account getFrom() {
-		return from;
+	public Integer getFromAccountId() {
+		return fromAccountId;
 	}
 
-	public void setFrom(Account from) {
-		this.from = from;
+	public void setFromAccountId(Integer from) {
+		this.fromAccountId = from;
 	}
 
-	public Account getTo() {
-		return to;
+	public Integer getToAccountId() {
+		return toAccountId;
 	}
 
-	public void setTo(Account to) {
-		this.to = to;
+	public void setToAccountId(Integer to) {
+		this.toAccountId = to;
 	}
 
 	public BigDecimal getAmount() {

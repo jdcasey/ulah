@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.persistence.TypedQuery;
 
 import org.commonjava.ulah.model.Transaction;
 
@@ -68,7 +69,22 @@ public class TransactionDataManager {
 	
 	public BigDecimal getAccountBalance( Integer accountId )
 	{
-		return null;
+		return getAccountBalance( accountId, null );
+	}
+	
+	public BigDecimal getAccountBalance( Integer accountId, Consumer<BigDecimal> consumer )
+	{
+		return wrappers.withTransaction(entityManager ->{
+			TypedQuery<BigDecimal> subtractions= entityManager.createNamedQuery(Transaction.SUMMARIZE_AMOUNT_BY_FROM_ACCOUNT, BigDecimal.class);
+			subtractions.setParameter(Transaction.ACCOUNT_ID_PARAM, accountId);
+			BigDecimal sub = subtractions.getSingleResult();
+			
+			TypedQuery<BigDecimal> additions = entityManager.createNamedQuery(Transaction.SUMMARIZE_AMOUNT_BY_TO_ACCOUNT, BigDecimal.class);
+			additions.setParameter(Transaction.ACCOUNT_ID_PARAM, accountId);
+			BigDecimal add = additions.getSingleResult();
+			
+			return add.subtract(sub);
+		}, () -> consumer );
 	}
 	
 	public List<Transaction> getAccountTransactions( Integer accountId, Date after, Date before, int limit )

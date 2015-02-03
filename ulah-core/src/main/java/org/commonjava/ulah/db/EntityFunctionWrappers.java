@@ -13,13 +13,13 @@ import javax.persistence.EntityManagerFactory;
 public class EntityFunctionWrappers {
 	
 	@Inject
-	private EntityManagerFactory emf;
+	private EntityManagerFactory entityManagerFactory;
 	
 	protected EntityFunctionWrappers(){}
 	
 	public EntityFunctionWrappers(EntityManagerFactory emf)
 	{
-		this.emf = emf;
+		this.entityManagerFactory = emf;
 	}
 
 	public <T> T withTransaction(Function<EntityManager, T> fn, Supplier<Consumer<T>> supplier)
@@ -27,7 +27,7 @@ public class EntityFunctionWrappers {
 		EntityManager entityManager = null;
 		try
 		{
-			entityManager = emf.createEntityManager();
+			entityManager = entityManagerFactory.createEntityManager();
 			entityManager.getTransaction().begin();
 			
 			T result = fn.apply(entityManager);
@@ -56,7 +56,7 @@ public class EntityFunctionWrappers {
 		EntityManager entityManager = null;
 		try
 		{
-			entityManager = emf.createEntityManager();
+			entityManager = entityManagerFactory.createEntityManager();
 			T result = fn.apply(entityManager);
 			
 			Consumer<T> consumer = supplier.get();

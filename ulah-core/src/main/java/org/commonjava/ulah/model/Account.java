@@ -13,9 +13,9 @@ import org.hibernate.annotations.GenericGenerator;
 @Entity
 @Table(name = "ACCOUNT")
 @NamedQueries({
-	@NamedQuery(name = Account.FIND_BY_NAME, query = "SELECT a from ACCOUNT a WHERE a.ACCOUNT_NAME = :name"),
-	@NamedQuery(name = Account.FIND_BY_NAME_PREFIX, query = "SELECT a from ACCOUNT a WHERE a.ACCOUNT_NAME LIKE :prefix"),
-	@NamedQuery(name = Account.FIND_ALL, query = "SELECT a from ACCOUNT a")
+	@NamedQuery(name = Account.FIND_BY_NAME, query = "SELECT a from Account a WHERE a.name = :name"),
+	@NamedQuery(name = Account.FIND_BY_NAME_PREFIX, query = "SELECT a from Account a WHERE a.name LIKE :prefix"),
+	@NamedQuery(name = Account.FIND_ALL, query = "SELECT a from Account a")
 })
 public class Account {
 
@@ -25,7 +25,9 @@ public class Account {
 
 	public static final String FIND_ALL = "Account.findAll";
 
-	@Column( name="ACCOUNT_ID" )
+	public static final String ACCOUNT_ID = "ACCOUNT_ID";
+
+	@Column( name=Account.ACCOUNT_ID )
 	private Integer id;
 
 	@Column( name="ACCOUNT_NAME" )
@@ -53,8 +55,8 @@ public class Account {
 	}
 
 	@Id
-	@GeneratedValue(generator = "increment")
-	@GenericGenerator(name = "increment", strategy = "increment")
+	@GeneratedValue(generator = "acct_increment")
+	@GenericGenerator(name = "acct_increment", strategy = "increment")
 	public Integer getId() {
 		return id;
 	}
