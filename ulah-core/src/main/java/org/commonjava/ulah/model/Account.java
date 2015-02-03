@@ -13,9 +13,9 @@ import org.hibernate.annotations.GenericGenerator;
 @Entity
 @Table(name = "ACCOUNT")
 @NamedQueries({
-	@NamedQuery(name = Account.FIND_BY_NAME, query = "SELECT a from Account a WHERE a.name = :name"),
-	@NamedQuery(name = Account.FIND_BY_NAME_PREFIX, query = "SELECT a from Account a WHERE a.name LIKE :prefix"),
-	@NamedQuery(name = Account.FIND_ALL, query = "SELECT a from Account a")
+	@NamedQuery(name = Account.FIND_BY_NAME, query = "SELECT a from Account a WHERE a.name = :name ORDER BY a.name"),
+	@NamedQuery(name = Account.FIND_BY_NAME_PREFIX, query = "SELECT a from Account a WHERE a.name LIKE :prefix ORDER BY a.name"),
+	@NamedQuery(name = Account.FIND_ALL, query = "SELECT a from Account a ORDER BY a.name")
 })
 public class Account {
 

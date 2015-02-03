@@ -68,8 +68,6 @@ public class AccountDataManager {
 				entityManager.persist(account);
 			}
 			
-			// TODO: Is the accountId set in the persist method??
-//			entityManager.refresh(account);
 			return account;
 		}, () -> consumer );
 	}

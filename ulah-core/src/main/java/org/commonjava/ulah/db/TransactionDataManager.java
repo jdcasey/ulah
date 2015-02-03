@@ -53,8 +53,6 @@ public class TransactionDataManager {
 				entityManager.persist(transaction);
 			}
 			
-			// TODO: Is the transactionId set in the persist method??
-//			entityManager.refresh(transaction);
 			return transaction;
 		}, () -> consumer );
 	}
@@ -87,14 +85,43 @@ public class TransactionDataManager {
 		}, () -> consumer );
 	}
 	
-	public List<Transaction> getAccountTransactions( Integer accountId, Date after, Date before, int limit )
+	public List<Transaction> getAccountTransactions( Integer accountId, Date after, Date before, int skip, int limit )
 	{
-		return null;
+		return getAccountTransactions( accountId, after, before, skip, limit, null );
+	}
+	
+	public List<Transaction> getAccountTransactions( Integer accountId, Date after, Date before, int skip, int limit, Consumer<List<Transaction>> consumer )
+	{
+		return wrappers.withTransaction( entityManager -> {
+			TypedQuery<Transaction> query = entityManager.createNamedQuery(Transaction.ACCOUNT_TRANSACTIONS_WITHIN_DATES, Transaction.class);
+			query.setParameter(Transaction.ACCOUNT_ID_PARAM, accountId);
+			query.setParameter(Transaction.BEFORE_DATE_PARAM, before);
+			query.setParameter(Transaction.AFTER_DATE_PARAM, after);
+			
+			query.setFirstResult(skip);
+			query.setMaxResults(limit);
+			
+			return query.getResultList();
+		}, () -> consumer );
 	}
 
-	public List<Transaction> getAllTransactions( Date after, Date before, int limit )
+	public List<Transaction> getAllTransactions( Date after, Date before, int skip, int limit )
 	{
-		return null;
+		return getAllTransactions( after, before, skip, limit, null );
+	}
+	
+	public List<Transaction> getAllTransactions( Date after, Date before, int skip, int limit, Consumer<List<Transaction>> consumer )
+	{
+		return wrappers.withTransaction( entityManager -> {
+			TypedQuery<Transaction> query = entityManager.createNamedQuery(Transaction.ALL_TRANSACTIONS_WITHIN_DATES, Transaction.class);
+			query.setParameter(Transaction.BEFORE_DATE_PARAM, before);
+			query.setParameter(Transaction.AFTER_DATE_PARAM, after);
+			
+			query.setFirstResult(skip);
+			query.setMaxResults(limit);
+			
+			return query.getResultList();
+		}, () -> consumer );
 	}
 
 }
