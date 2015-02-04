@@ -11,105 +11,104 @@ import org.commonjava.ulah.model.Account;
 
 @ApplicationScoped
 public class AccountDataManager {
-	
-	@Inject
-	private EntityFunctionWrappers wrappers;
-	
-	protected AccountDataManager(){}
-	
-	public AccountDataManager( EntityFunctionWrappers wrappers )
-	{
-		this.wrappers = wrappers;
-	}
-	
-	public Account getAccount( String name )
-	{
-		return getAccount(name, null);
-	}
-	
-	public Account getAccount( String name, Consumer<Account> consumer )
-	{
-		return wrappers.withoutTransaction( entityManager -> {
-			TypedQuery<Account> query = entityManager.createNamedQuery(Account.FIND_BY_NAME, Account.class);
-			query.setMaxResults(1);
-			query.setParameter(0, name);
-			Account account = query.getSingleResult();
-			return account;
-		}, () -> consumer );
-	}
-	
-	public Account getAccount( Integer accountId )
-	{
-		return getAccount( accountId, null );
-	}
-	
-	public Account getAccount( Integer accountId, Consumer<Account> consumer )
-	{
-		return wrappers.withoutTransaction( entityManager -> {
-			Account account = entityManager.find(Account.class, accountId);
-			return account;
-		}, () -> consumer );
-	}
-	
-	public Account storeAccount( Account account )
-	{
-		return storeAccount( account, null );
-	}
-	
-	public Account storeAccount( Account account, Consumer<Account> consumer )
-	{
-		return wrappers.withTransaction( entityManager -> {
-			if (entityManager.contains(account))
-			{
-				entityManager.merge(account);
-			}
-			else
-			{
-				entityManager.persist(account);
-			}
-			
-			return account;
-		}, () -> consumer );
-	}
-	
-	public void deleteAccount( Account account )
-	{
-		wrappers.withTransaction( entityManager -> {
-			entityManager.remove(account);
-			
-			return null;
-		}, () -> null);
-	}
-	
-	public List<Account> listAccounts()
-	{
-		return listAccounts( null );
-	}
 
-	public List<Account> listAccounts( Consumer<List<Account>> consumer )
-	{
-		return wrappers.withoutTransaction( entityManager ->{
-			TypedQuery<Account> query = entityManager.createNamedQuery(Account.FIND_ALL, Account.class);
-			List<Account> result = query.getResultList();
+    @Inject
+    private EntityFunctionWrappers wrappers;
 
-			return result;
-		}, () -> consumer);
-	}
+    protected AccountDataManager() {
+    }
 
-	public List<Account> listAccountsStartingWith(String prefix)
-	{
-		return listAccountsStartingWith( prefix, null );
-	}
+    public AccountDataManager(EntityFunctionWrappers wrappers) {
+        this.wrappers = wrappers;
+    }
 
-	public List<Account> listAccountsStartingWith( String prefix, Consumer<List<Account>> consumer )
-	{
-		return wrappers.withoutTransaction( entityManager ->{
-			TypedQuery<Account> query = entityManager.createNamedQuery(Account.FIND_ALL, Account.class);
-			query.setParameter(0, prefix + "%" );
-			
-			List<Account> result = query.getResultList();
-			return result;
-		}, () -> consumer);
-	}
+    public Account getAccount(String name) {
+        return getAccount(name, null);
+    }
+
+    public Account getAccount(String name, Consumer<Account> consumer) {
+        return wrappers.withTransaction(
+                entityManager -> {
+                    TypedQuery<Account> query = entityManager.createNamedQuery(
+                            Account.FIND_BY_NAME, Account.class);
+                    query.setMaxResults(1);
+                    query.setParameter(Account.NAME_PARAM, name);
+                    Account account = query.getSingleResult();
+                    return account;
+                }, () -> consumer);
+    }
+
+    public Account getAccount(Integer accountId) {
+        return getAccount(accountId, null);
+    }
+
+    public Account getAccount(Integer accountId, Consumer<Account> consumer) {
+        return wrappers.withTransaction(entityManager -> {
+            return entityManager.find(Account.class, accountId);
+        }, () -> consumer);
+    }
+
+    public Account storeAccount(Account account) {
+        return storeAccount(account, null);
+    }
+
+    public Account storeAccount(Account account, Consumer<Account> consumer) {
+        return wrappers.withTransaction(entityManager -> {
+            return entityManager.merge(account);
+            // if (entityManager.contains(account)) {
+            // } else {
+            // entityManager.persist(account);
+            // return account;
+            // }
+            }, () -> consumer);
+    }
+
+    public void deleteAccount(Account account) {
+        if (account.getId() == null) {
+            return;
+        }
+
+        wrappers.withTransaction(entityManager -> {
+            Account acct = account;
+            if (!entityManager.contains(acct)) {
+                acct = entityManager.merge(account);
+            }
+            entityManager.remove(acct);
+
+            return null;
+        }, () -> null);
+    }
+
+    public List<Account> listAccounts() {
+        return listAccounts(null);
+    }
+
+    public List<Account> listAccounts(Consumer<List<Account>> consumer) {
+        return wrappers.withTransaction(
+                entityManager -> {
+                    TypedQuery<Account> query = entityManager.createNamedQuery(
+                            Account.FIND_ALL, Account.class);
+                    List<Account> result = query.getResultList();
+
+                    return result;
+                }, () -> consumer);
+    }
+
+    public List<Account> listAccountsStartingWith(String prefix) {
+        return listAccountsStartingWith(prefix, null);
+    }
+
+    public List<Account> listAccountsStartingWith(String prefix,
+            Consumer<List<Account>> consumer) {
+        return wrappers.withTransaction(
+                entityManager -> {
+                    TypedQuery<Account> query = entityManager.createNamedQuery(
+                            Account.FIND_BY_NAME_PREFIX, Account.class);
+                    query.setParameter(Account.PREFIX_PARAM, prefix + "%");
+
+                    List<Account> result = query.getResultList();
+                    return result;
+                }, () -> consumer);
+    }
 
 }

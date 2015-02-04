@@ -13,60 +13,62 @@ import org.hibernate.annotations.GenericGenerator;
 @Entity
 @Table(name = "ACCOUNT")
 @NamedQueries({
-	@NamedQuery(name = Account.FIND_BY_NAME, query = "SELECT a from Account a WHERE a.name = :name ORDER BY a.name"),
-	@NamedQuery(name = Account.FIND_BY_NAME_PREFIX, query = "SELECT a from Account a WHERE a.name LIKE :prefix ORDER BY a.name"),
-	@NamedQuery(name = Account.FIND_ALL, query = "SELECT a from Account a ORDER BY a.name")
-})
+        @NamedQuery(name = Account.FIND_BY_NAME, query = "SELECT a from Account a WHERE a.name = :name ORDER BY a.name"),
+        @NamedQuery(name = Account.FIND_BY_NAME_PREFIX, query = "SELECT a from Account a WHERE a.name LIKE :prefix ORDER BY a.name"),
+        @NamedQuery(name = Account.FIND_ALL, query = "SELECT a from Account a ORDER BY a.name") })
 public class Account {
 
-	public static final String FIND_BY_NAME_PREFIX = "Account.findByNamePrefix";
+    public static final String FIND_BY_NAME_PREFIX = "Account.findByNamePrefix";
 
-	public static final String FIND_BY_NAME = "Account.findByName";
+    public static final String FIND_BY_NAME = "Account.findByName";
 
-	public static final String FIND_ALL = "Account.findAll";
+    public static final String FIND_ALL = "Account.findAll";
 
-	public static final String ACCOUNT_ID = "ACCOUNT_ID";
+    public static final String ACCOUNT_ID = "ACCOUNT_ID";
 
-	@Column( name=Account.ACCOUNT_ID )
-	private Integer id;
+    public static final String NAME_PARAM = "name";
+    public static final String PREFIX_PARAM = "prefix";
 
-	@Column( name="ACCOUNT_NAME" )
-	private String name;
-	
-	private String description;
+    @Id
+    @GeneratedValue(generator = "acct_increment")
+    @GenericGenerator(name = "acct_increment", strategy = "increment")
+    @Column(name = Account.ACCOUNT_ID)
+    private Integer id;
 
-	protected Account() {
-	}
+    @Column(name = "ACCOUNT_NAME", unique = true, length = 30)
+    private String name;
 
-	public Account(String name) {
-		this.name = name;
-	}
+    private String description;
 
-	public String getName() {
-		return name;
-	}
+    protected Account() {
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public Account(String name) {
+        this.name = name;
+    }
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    public String getName() {
+        return name;
+    }
 
-	@Id
-	@GeneratedValue(generator = "acct_increment")
-	@GenericGenerator(name = "acct_increment", strategy = "increment")
-	public Integer getId() {
-		return id;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public Integer getId() {
+        return id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
 }
