@@ -42,19 +42,14 @@ public class AccountTransactionDataManager {
     public AccountTransaction storeTransaction(AccountTransaction transaction,
             Consumer<AccountTransaction> consumer) {
         return wrappers.withTransaction(entityManager -> {
-            if (entityManager.contains(transaction)) {
-                entityManager.merge(transaction);
-            } else {
-                entityManager.persist(transaction);
-            }
-
-            return transaction;
+            return entityManager.merge(transaction);
         }, () -> consumer);
     }
 
     public void deleteTransaction(AccountTransaction transaction) {
         wrappers.withTransaction(entityManager -> {
-            entityManager.remove(transaction);
+            AccountTransaction tx = entityManager.merge(transaction);
+            entityManager.remove(tx);
             return null;
         }, () -> null);
     }
@@ -76,6 +71,9 @@ public class AccountTransactionDataManager {
                                     AccountTransaction.ACCOUNT_ID_PARAM,
                                     accountId);
                             BigDecimal sub = subtractions.getSingleResult();
+                            if (sub == null) {
+                                sub = new BigDecimal(0);
+                            }
 
                             TypedQuery<BigDecimal> additions = entityManager
                                     .createNamedQuery(
@@ -85,6 +83,9 @@ public class AccountTransactionDataManager {
                                     AccountTransaction.ACCOUNT_ID_PARAM,
                                     accountId);
                             BigDecimal add = additions.getSingleResult();
+                            if (add == null) {
+                                add = new BigDecimal(0);
+                            }
 
                             return add.subtract(sub);
                         }, () -> consumer);

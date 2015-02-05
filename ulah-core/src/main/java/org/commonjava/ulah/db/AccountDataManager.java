@@ -55,12 +55,7 @@ public class AccountDataManager {
     public Account storeAccount(Account account, Consumer<Account> consumer) {
         return wrappers.withTransaction(entityManager -> {
             return entityManager.merge(account);
-            // if (entityManager.contains(account)) {
-            // } else {
-            // entityManager.persist(account);
-            // return account;
-            // }
-            }, () -> consumer);
+        }, () -> consumer);
     }
 
     public void deleteAccount(Account account) {

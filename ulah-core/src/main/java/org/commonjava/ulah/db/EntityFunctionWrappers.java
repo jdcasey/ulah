@@ -29,9 +29,10 @@ public class EntityFunctionWrappers {
         EntityTransaction tx = null;
         try {
             entityManager = entityManagerFactory.createEntityManager();
-            tx = entityManager.getTransaction();
+            EntityTransaction transaction = entityManager.getTransaction();
 
-            tx.begin();
+            transaction.begin();
+            tx = transaction;
 
             T result = fn.apply(entityManager);
 
@@ -45,7 +46,7 @@ public class EntityFunctionWrappers {
             return result;
         } catch (RuntimeException e) {
             if (tx != null) {
-                entityManager.getTransaction().rollback();
+                tx.rollback();
             }
             throw e;
         } finally {
