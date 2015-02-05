@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
 import org.commonjava.ulah.model.Account;
@@ -27,15 +28,25 @@ public class AccountDataManager {
     }
 
     public Account getAccount(String name, Consumer<Account> consumer) {
-        return wrappers.withTransaction(
-                entityManager -> {
-                    TypedQuery<Account> query = entityManager.createNamedQuery(
-                            Account.FIND_BY_NAME, Account.class);
-                    query.setMaxResults(1);
-                    query.setParameter(Account.NAME_PARAM, name);
-                    Account account = query.getSingleResult();
-                    return account;
-                }, () -> consumer);
+        Account result = null;
+        try {
+            result = wrappers.withTransaction(
+                    entityManager -> {
+                        TypedQuery<Account> query = entityManager
+                                .createNamedQuery(Account.FIND_BY_NAME,
+                                        Account.class);
+                        query.setMaxResults(1);
+                        query.setParameter(Account.NAME_PARAM, name);
+                        Account account = query.getSingleResult();
+                        return account;
+                    }, () -> consumer);
+        } catch (NoResultException e) {
+            if (consumer != null) {
+                consumer.accept(result);
+            }
+        }
+
+        return result;
     }
 
     public Account getAccount(Integer accountId) {
@@ -104,6 +115,32 @@ public class AccountDataManager {
                     List<Account> result = query.getResultList();
                     return result;
                 }, () -> consumer);
+    }
+
+    public Account getOrCreateAccountByName(Account acct) {
+        return getOrCreateAccountByName(acct, null);
+    }
+
+    public Account getOrCreateAccountByName(Account acct,
+            Consumer<Account> consumer) {
+        Account result = null;
+        if (acct.getId() != null) {
+            result = wrappers.withTransaction(entityManager -> {
+                return entityManager.getReference(Account.class, acct.getId());
+            }, () -> null);
+        } else if (acct.getName() != null) {
+            result = getAccount(acct.getName());
+        }
+
+        if (result == null) {
+            return storeAccount(acct, consumer);
+        } else {
+            if (consumer != null) {
+                consumer.accept(result);
+            }
+
+            return result;
+        }
     }
 
 }

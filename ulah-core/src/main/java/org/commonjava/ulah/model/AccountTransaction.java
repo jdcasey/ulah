@@ -2,6 +2,7 @@ package org.commonjava.ulah.model;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -9,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -21,10 +23,10 @@ import org.hibernate.annotations.GenericGenerator;
 @Entity
 @Table(name = "ENTRY")
 @NamedQueries({
-        @NamedQuery(name = AccountTransaction.SUMMARIZE_AMOUNT_BY_TO_ACCOUNT, query = "SELECT SUM(t.amount) from AccountTransaction t WHERE t.toAccount.id = :accountId"),
-        @NamedQuery(name = AccountTransaction.SUMMARIZE_AMOUNT_BY_FROM_ACCOUNT, query = "SELECT SUM(t.amount) from AccountTransaction t WHERE t.fromAccount.id = :accountId"),
-        @NamedQuery(name = AccountTransaction.ALL_TRANSACTIONS_WITHIN_DATES, query = "SELECT t from AccountTransaction t WHERE t.date <= :beforeDate AND t.date >= :afterDate ORDER BY t.date"),
-        @NamedQuery(name = AccountTransaction.ACCOUNT_TRANSACTIONS_WITHIN_DATES, query = "SELECT t from AccountTransaction t WHERE (t.fromAccount.id=:accountId OR t.toAccount.id=:accountId) AND t.date <= :beforeDate AND t.date >= :afterDate ORDER BY t.date") })
+    @NamedQuery(name = AccountTransaction.SUMMARIZE_AMOUNT_BY_TO_ACCOUNT, query = "SELECT SUM(t.amount) from AccountTransaction t WHERE t.toAccount.id = :accountId"),
+    @NamedQuery(name = AccountTransaction.SUMMARIZE_AMOUNT_BY_FROM_ACCOUNT, query = "SELECT SUM(t.amount) from AccountTransaction t WHERE t.fromAccount.id = :accountId"),
+    @NamedQuery(name = AccountTransaction.ALL_TRANSACTIONS_WITHIN_DATES, query = "SELECT t from AccountTransaction t WHERE t.date <= :beforeDate AND t.date >= :afterDate ORDER BY t.date"),
+    @NamedQuery(name = AccountTransaction.ACCOUNT_TRANSACTIONS_WITHIN_DATES, query = "SELECT t from AccountTransaction t WHERE (t.fromAccount.id=:accountId OR t.toAccount.id=:accountId) AND t.date <= :beforeDate AND t.date >= :afterDate ORDER BY t.date") })
 public class AccountTransaction {
 
     public static final String SUMMARIZE_AMOUNT_BY_TO_ACCOUNT = "AccountTransaction.summarizeAmountByToAccount";
@@ -42,10 +44,10 @@ public class AccountTransaction {
     @GenericGenerator(name = "txn_increment", strategy = "increment")
     private Long id;
 
-    @ManyToOne(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER)
     private Account fromAccount;
 
-    @ManyToOne(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER)
     private Account toAccount;
 
     @Column(name = "AMOUNT")
@@ -58,15 +60,11 @@ public class AccountTransaction {
     @Column(name = "RECONCILED")
     private Boolean reconciled;
 
+    @Column
     private String memo;
 
-    public String getMemo() {
-        return memo;
-    }
-
-    public void setMemo(String memo) {
-        this.memo = memo;
-    }
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<TransactionTag> tags;
 
     protected AccountTransaction() {
     }
@@ -126,6 +124,22 @@ public class AccountTransaction {
 
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
+    }
+
+    public Set<TransactionTag> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<TransactionTag> tags) {
+        this.tags = tags;
+    }
+
+    public String getMemo() {
+        return memo;
+    }
+
+    public void setMemo(String memo) {
+        this.memo = memo;
     }
 
 }

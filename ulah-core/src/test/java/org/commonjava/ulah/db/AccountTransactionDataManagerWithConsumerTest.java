@@ -16,7 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class AccountTransactionDataManagerWithConsumerTest extends
-        AbstractDataManagerTest {
+AbstractDataManagerTest {
 
     private AccountTransactionDataManager transactions;
     private AccountDataManager accounts;
@@ -25,7 +25,9 @@ public class AccountTransactionDataManagerWithConsumerTest extends
 
     @Before
     public void setupTransactions() {
-        transactions = new AccountTransactionDataManager(wrappers);
+        transactions = new AccountTransactionDataManager(wrappers,
+                new AccountDataManager(wrappers),
+                new TransactionTagDataManager(wrappers));
         accounts = new AccountDataManager(wrappers);
 
         from = accounts.storeAccount(new Account("from"));
@@ -120,9 +122,9 @@ public class AccountTransactionDataManagerWithConsumerTest extends
     @Test
     public void newTransactionsSummedAppropriatelyInTargetAccount() {
         transactions
-        .storeTransaction(new AccountTransaction(from, to,
-                new BigDecimal(10.22, new MathContext(4,
-                        RoundingMode.HALF_UP)), "test transaction"));
+                .storeTransaction(new AccountTransaction(from, to,
+                        new BigDecimal(10.22, new MathContext(4,
+                                RoundingMode.HALF_UP)), "test transaction"));
 
         transactions.storeTransaction(new AccountTransaction(to, from,
                 new BigDecimal(1.22, new MathContext(4, RoundingMode.HALF_UP)),
@@ -136,9 +138,9 @@ public class AccountTransactionDataManagerWithConsumerTest extends
     @Test
     public void newTransactionsSummedAppropriatelyInSourceAccount() {
         transactions
-        .storeTransaction(new AccountTransaction(from, to,
-                new BigDecimal(10.22, new MathContext(4,
-                        RoundingMode.HALF_UP)), "test transaction"));
+                .storeTransaction(new AccountTransaction(from, to,
+                        new BigDecimal(10.22, new MathContext(4,
+                                RoundingMode.HALF_UP)), "test transaction"));
 
         transactions.storeTransaction(new AccountTransaction(to, from,
                 new BigDecimal(1.22, new MathContext(4, RoundingMode.HALF_UP)),
@@ -155,9 +157,9 @@ public class AccountTransactionDataManagerWithConsumerTest extends
         transactions.storeTransaction(new AccountTransaction(to, third,
                 new BigDecimal(1.10), "excluded transaction"));
         transactions
-                .storeTransaction(new AccountTransaction(from, to,
-                        new BigDecimal(10.00, new MathContext(4,
-                                RoundingMode.HALF_UP)), "included transaction"));
+        .storeTransaction(new AccountTransaction(from, to,
+                new BigDecimal(10.00, new MathContext(4,
+                        RoundingMode.HALF_UP)), "included transaction"));
 
         transactions.getAccountTransactions(
                 from.getId(),
@@ -180,9 +182,9 @@ public class AccountTransactionDataManagerWithConsumerTest extends
                 new BigDecimal(1.10), "excluded transaction"));
 
         transactions
-                .storeTransaction(new AccountTransaction(from, to,
-                        new BigDecimal(10.00, new MathContext(4,
-                                RoundingMode.HALF_UP)), "included transaction"));
+        .storeTransaction(new AccountTransaction(from, to,
+                new BigDecimal(10.00, new MathContext(4,
+                        RoundingMode.HALF_UP)), "included transaction"));
 
         transactions.getAllTransactions(
                 new Date(0),

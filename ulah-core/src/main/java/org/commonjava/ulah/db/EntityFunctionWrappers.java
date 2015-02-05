@@ -46,7 +46,10 @@ public class EntityFunctionWrappers {
             return result;
         } catch (RuntimeException e) {
             if (tx != null) {
-                tx.rollback();
+                try {
+                    tx.rollback();
+                } catch (IllegalStateException ille) {
+                }
             }
             throw e;
         } finally {

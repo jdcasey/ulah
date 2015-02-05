@@ -2,7 +2,9 @@ package org.commonjava.ulah.db;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -10,6 +12,7 @@ import javax.inject.Inject;
 import javax.persistence.TypedQuery;
 
 import org.commonjava.ulah.model.AccountTransaction;
+import org.commonjava.ulah.model.TransactionTag;
 
 @ApplicationScoped
 public class AccountTransactionDataManager {
@@ -17,11 +20,19 @@ public class AccountTransactionDataManager {
     @Inject
     private EntityFunctionWrappers wrappers;
 
+    @Inject
+    private AccountDataManager accounts;
+
+    private TransactionTagDataManager tags;
+
     protected AccountTransactionDataManager() {
     }
 
-    public AccountTransactionDataManager(EntityFunctionWrappers wrappers) {
+    public AccountTransactionDataManager(EntityFunctionWrappers wrappers,
+            AccountDataManager accounts, TransactionTagDataManager tags) {
         this.wrappers = wrappers;
+        this.accounts = accounts;
+        this.tags = tags;
     }
 
     public AccountTransaction getTransaction(Long transactionId) {
@@ -41,9 +52,34 @@ public class AccountTransactionDataManager {
 
     public AccountTransaction storeTransaction(AccountTransaction transaction,
             Consumer<AccountTransaction> consumer) {
-        return wrappers.withTransaction(entityManager -> {
-            return entityManager.merge(transaction);
-        }, () -> consumer);
+        return wrappers
+                .withTransaction(
+                        entityManager -> {
+                            if (transaction.getFromAccount() != null) {
+                                transaction.setFromAccount(accounts
+                                        .getOrCreateAccountByName(transaction
+                                                .getFromAccount()));
+                            }
+
+                            if (transaction.getToAccount() != null) {
+                                transaction.setToAccount(accounts
+                                        .getOrCreateAccountByName(transaction
+                                                .getToAccount()));
+                            }
+
+                            Set<TransactionTag> t = transaction.getTags();
+                            if (t != null) {
+                                Set<TransactionTag> mergedTags = new HashSet<TransactionTag>();
+                                for (TransactionTag tag : t) {
+                                    mergedTags.add(tags
+                                            .getOrCreateTagByName(tag));
+                                }
+
+                                transaction.setTags(mergedTags);
+                            }
+
+                            return entityManager.merge(transaction);
+                        }, () -> consumer);
     }
 
     public void deleteTransaction(AccountTransaction transaction) {
@@ -151,5 +187,8 @@ public class AccountTransactionDataManager {
                             return query.getResultList();
                         }, () -> consumer);
     }
+
+    // TODO: Transactions for account with given tag(s)
+    // TODO: All transactions with given tag(s)
 
 }

@@ -25,7 +25,9 @@ public class AccountTransactionDataManagerTest extends AbstractDataManagerTest {
 
     @Before
     public void setupTransactions() {
-        transactions = new AccountTransactionDataManager(wrappers);
+        transactions = new AccountTransactionDataManager(wrappers,
+                new AccountDataManager(wrappers),
+                new TransactionTagDataManager(wrappers));
         accounts = new AccountDataManager(wrappers);
 
         from = accounts.storeAccount(new Account("from"));
@@ -115,9 +117,9 @@ public class AccountTransactionDataManagerTest extends AbstractDataManagerTest {
     @Test
     public void newTransactionsSummedAppropriatelyInTargetAccount() {
         transactions
-                .storeTransaction(new AccountTransaction(from, to,
-                        new BigDecimal(10.22, new MathContext(4,
-                                RoundingMode.HALF_UP)), "test transaction"));
+        .storeTransaction(new AccountTransaction(from, to,
+                new BigDecimal(10.22, new MathContext(4,
+                        RoundingMode.HALF_UP)), "test transaction"));
 
         transactions.storeTransaction(new AccountTransaction(to, from,
                 new BigDecimal(1.22, new MathContext(4, RoundingMode.HALF_UP)),
@@ -130,9 +132,9 @@ public class AccountTransactionDataManagerTest extends AbstractDataManagerTest {
     @Test
     public void newTransactionsSummedAppropriatelyInSourceAccount() {
         transactions
-                .storeTransaction(new AccountTransaction(from, to,
-                        new BigDecimal(10.22, new MathContext(4,
-                                RoundingMode.HALF_UP)), "test transaction"));
+        .storeTransaction(new AccountTransaction(from, to,
+                new BigDecimal(10.22, new MathContext(4,
+                        RoundingMode.HALF_UP)), "test transaction"));
 
         transactions.storeTransaction(new AccountTransaction(to, from,
                 new BigDecimal(1.22, new MathContext(4, RoundingMode.HALF_UP)),
@@ -148,9 +150,9 @@ public class AccountTransactionDataManagerTest extends AbstractDataManagerTest {
         transactions.storeTransaction(new AccountTransaction(to, third,
                 new BigDecimal(1.10), "excluded transaction"));
         transactions
-        .storeTransaction(new AccountTransaction(from, to,
-                new BigDecimal(10.00, new MathContext(4,
-                        RoundingMode.HALF_UP)), "included transaction"));
+                .storeTransaction(new AccountTransaction(from, to,
+                        new BigDecimal(10.00, new MathContext(4,
+                                RoundingMode.HALF_UP)), "included transaction"));
 
         List<AccountTransaction> txns = transactions.getAccountTransactions(
                 from.getId(), new Date(0), new Date(), 0, 3);
@@ -167,9 +169,9 @@ public class AccountTransactionDataManagerTest extends AbstractDataManagerTest {
                 new BigDecimal(1.10), "excluded transaction"));
 
         transactions
-        .storeTransaction(new AccountTransaction(from, to,
-                new BigDecimal(10.00, new MathContext(4,
-                        RoundingMode.HALF_UP)), "included transaction"));
+                .storeTransaction(new AccountTransaction(from, to,
+                        new BigDecimal(10.00, new MathContext(4,
+                                RoundingMode.HALF_UP)), "included transaction"));
 
         List<AccountTransaction> txns = transactions.getAllTransactions(
                 new Date(0), new Date(), 0, 3);

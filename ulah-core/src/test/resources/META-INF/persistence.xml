@@ -10,6 +10,7 @@
 		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 		<class>org.commonjava.ulah.model.Account</class>
 		<class>org.commonjava.ulah.model.AccountTransaction</class>
+		<class>org.commonjava.ulah.model.TransactionTag</class>
 		<properties>
 			<property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver" />
 			<property name="javax.persistence.jdbc.url" value="jdbc:derby:memory:ulah;create=true" />
