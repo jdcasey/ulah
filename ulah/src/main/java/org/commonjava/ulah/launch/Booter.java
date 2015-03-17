@@ -7,7 +7,9 @@ import io.undertow.servlet.api.DeploymentManager;
 
 import javax.servlet.ServletException;
 
+import org.commonjava.ulah.conf.UlahConfiguration;
 import org.commonjava.ulah.jaxrs.UlahDeployer;
+import org.commonjava.web.config.ConfigurationException;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.slf4j.Logger;
@@ -62,6 +64,8 @@ public class Booter {
     private BootStatus status;
 
     private LifecycleManager lifecycleManager;
+
+    private UlahConfiguration config;
 
     private void initialize(final BootOptions options) throws BootException {
         this.options = options;
@@ -141,10 +145,20 @@ public class Booter {
         initialize(bootOptions);
         logger.info("Booter running: " + this);
 
+        configure();
         startLifecycle();
 
         deploy();
         return status;
+    }
+
+    public void configure() {
+        config = container.instance().select(UlahConfiguration.class).get();
+        try {
+            config.load(options.getConfig(), options.getHomeDir());
+        } catch (ConfigurationException e) {
+            status.markFailed(BootOptions.ERR_LOAD_CONFIG, e);
+        }
     }
 
     public void startLifecycle() {

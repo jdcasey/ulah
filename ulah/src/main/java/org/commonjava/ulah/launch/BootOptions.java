@@ -39,6 +39,8 @@ public class BootOptions {
 
     public static final int ERR_STARTING = 4;
 
+    public static final int ERR_LOAD_CONFIG = 5;
+
     @Option(name = "-h", aliases = { "--help" }, usage = "Print this and exit")
     private boolean help;
 
@@ -56,6 +58,9 @@ public class BootOptions {
     private Properties bootProps;
 
     private String homeDir;
+
+    @Option(name = "-f", aliases = { "--config" }, usage = "Specify a different configuration file (defaults to ${ulah.home}/etc/main.conf or $ULAH_HOME/etc/main.conf)")
+    private String config;
 
     public static final BootOptions loadFromSysprops() throws BootException {
         final String bootDef = System.getProperty(BOOT_DEFAULTS_PROP);
@@ -99,7 +104,7 @@ public class BootOptions {
     }
 
     public BootOptions(final String aproxHome) throws IOException,
-            InterpolationException {
+    InterpolationException {
         this(null, aproxHome);
     }
 
@@ -244,6 +249,11 @@ public class BootOptions {
 
     public void setPort(final Integer port) {
         this.port = port;
+    }
+
+    public String getConfig() {
+        return config == null ? new File(getHomeDir(), "etc/main.conf")
+        .getPath() : config;
     }
 
 }
