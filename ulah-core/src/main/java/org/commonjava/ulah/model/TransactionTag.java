@@ -6,15 +6,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "TXTAG")
 @NamedQueries({
-        @NamedQuery(name = TransactionTag.ALL_TAGS, query = "Select t from TransactionTag t"),
-        @NamedQuery(name = TransactionTag.FIND_BY_NAME, query = "SELECT t from TransactionTag t WHERE t.name = :name") })
+    @NamedQuery(name = TransactionTag.ALL_TAGS, query = "Select t from TransactionTag t"),
+    @NamedQuery(name = TransactionTag.FIND_BY_NAME, query = "SELECT t from TransactionTag t WHERE t.name = :name") })
 public class TransactionTag {
 
     public static final String ALL_TAGS = "TransactionTag.allTags";
@@ -25,7 +24,7 @@ public class TransactionTag {
     @Id
     @Column(name = "TAG_ID")
     @GeneratedValue(generator = "tag_increment")
-    @GenericGenerator(name = "tag_increment", strategy = "increment")
+    @SequenceGenerator(name = "tag_increment")
     private Integer id;
 
     @Column(unique = true, nullable = false)

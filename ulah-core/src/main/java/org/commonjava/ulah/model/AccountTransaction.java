@@ -14,19 +14,18 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.hibernate.annotations.GenericGenerator;
-
 @Entity
 @Table(name = "ENTRY")
 @NamedQueries({
-    @NamedQuery(name = AccountTransaction.SUMMARIZE_AMOUNT_BY_TO_ACCOUNT, query = "SELECT SUM(t.amount) from AccountTransaction t WHERE t.toAccount.id = :accountId"),
-    @NamedQuery(name = AccountTransaction.SUMMARIZE_AMOUNT_BY_FROM_ACCOUNT, query = "SELECT SUM(t.amount) from AccountTransaction t WHERE t.fromAccount.id = :accountId"),
-    @NamedQuery(name = AccountTransaction.ALL_TRANSACTIONS_WITHIN_DATES, query = "SELECT t from AccountTransaction t WHERE t.date <= :beforeDate AND t.date >= :afterDate ORDER BY t.date"),
-    @NamedQuery(name = AccountTransaction.ACCOUNT_TRANSACTIONS_WITHIN_DATES, query = "SELECT t from AccountTransaction t WHERE (t.fromAccount.id=:accountId OR t.toAccount.id=:accountId) AND t.date <= :beforeDate AND t.date >= :afterDate ORDER BY t.date") })
+        @NamedQuery(name = AccountTransaction.SUMMARIZE_AMOUNT_BY_TO_ACCOUNT, query = "SELECT SUM(t.amount) from AccountTransaction t WHERE t.toAccount.id = :accountId"),
+        @NamedQuery(name = AccountTransaction.SUMMARIZE_AMOUNT_BY_FROM_ACCOUNT, query = "SELECT SUM(t.amount) from AccountTransaction t WHERE t.fromAccount.id = :accountId"),
+        @NamedQuery(name = AccountTransaction.ALL_TRANSACTIONS_WITHIN_DATES, query = "SELECT t from AccountTransaction t WHERE t.date <= :beforeDate AND t.date >= :afterDate ORDER BY t.date"),
+        @NamedQuery(name = AccountTransaction.ACCOUNT_TRANSACTIONS_WITHIN_DATES, query = "SELECT t from AccountTransaction t WHERE (t.fromAccount.id=:accountId OR t.toAccount.id=:accountId) AND t.date <= :beforeDate AND t.date >= :afterDate ORDER BY t.date") })
 public class AccountTransaction {
 
     public static final String SUMMARIZE_AMOUNT_BY_TO_ACCOUNT = "AccountTransaction.summarizeAmountByToAccount";
@@ -41,7 +40,7 @@ public class AccountTransaction {
     @Id
     @Column(name = "ENTRY_ID")
     @GeneratedValue(generator = "txn_increment")
-    @GenericGenerator(name = "txn_increment", strategy = "increment")
+    @SequenceGenerator(name = "txn_increment")
     private Long id;
 
     @ManyToOne(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER)

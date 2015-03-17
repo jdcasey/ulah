@@ -6,9 +6,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "ACCOUNT")
@@ -30,8 +29,8 @@ public class Account {
     public static final String PREFIX_PARAM = "prefix";
 
     @Id
+    @SequenceGenerator(name = "acct_increment")
     @GeneratedValue(generator = "acct_increment")
-    @GenericGenerator(name = "acct_increment", strategy = "increment")
     @Column(name = Account.ACCOUNT_ID)
     private Integer id;
 

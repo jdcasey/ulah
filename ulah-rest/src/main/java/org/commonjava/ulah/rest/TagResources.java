@@ -1,58 +1,43 @@
 package org.commonjava.ulah.rest;
 
-import java.util.Collections;
-
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 import org.commonjava.ulah.db.TransactionTagDataManager;
-import org.commonjava.vertx.vabr.anno.Handles;
-import org.commonjava.vertx.vabr.anno.Route;
-import org.commonjava.vertx.vabr.anno.Routes;
-import org.commonjava.vertx.vabr.types.Method;
-import org.commonjava.vertx.vabr.util.Respond;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpServerRequest;
+import org.commonjava.ulah.dto.TagListDTO;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-@Handles("/tags")
-public class TagResources {
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+@Path("/tags")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+public class TagResources implements RestResources {
 
     @Inject
     private TransactionTagDataManager tags;
 
-    @Inject
-    private ObjectMapper mapper;
-
     protected TagResources() {
     }
 
-    public TagResources(TransactionTagDataManager tags, ObjectMapper mapper) {
+    public TagResources(TransactionTagDataManager tags) {
         this.tags = tags;
-        this.mapper = mapper;
     }
 
-    @Routes({ @Route(path = "/all", method = Method.GET, routeKey = "all"),
-            @Route(path = "/", method = Method.GET, routeKey = "base") })
-    public void list(HttpServerRequest req) {
-        req.endHandler(v -> {
-            tags.getAllTags(tgs -> {
-                try {
-                    Respond.to(req)
-                            .ok()
-                            .jsonEntity(Collections.singletonMap("items", tgs),
-                                    mapper).send();
-                } catch (Exception e) {
-                    logger.error(String.format(
-                            "Failed to retrieve tag listing: %s",
-                            e.getMessage()), e);
-                    Respond.to(req).serverError(e, true).send();
-                }
-            });
-        });
+    @Path("/all")
+    @GET
+    public TagListDTO allListing() {
+        return listing();
+    }
+
+    @GET
+    public TagListDTO rootListing() {
+        return listing();
+    }
+
+    private TagListDTO listing() {
+        return new TagListDTO(tags.getAllTags());
     }
 
 }
